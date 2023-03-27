@@ -23,7 +23,7 @@ void InvertedIndex::UpdateDocumentBase(const std::vector<std::string>& input_doc
 }
 
 void InvertedIndex::UpdateFreqDictionary(size_t& doc_id, std::string& text) {
-    // Получаем множества уникальных значений
+    // Получаем множества уникальных слов
     std::vector<std::string> words{};
     std::istringstream iss(text);
     std::string word;
@@ -33,26 +33,9 @@ void InvertedIndex::UpdateFreqDictionary(size_t& doc_id, std::string& text) {
 
     // Обновляем частотный словарь
     for (auto & uniqueWord : uniqueWords) {
-         auto wordEntries = GetWordCount(uniqueWord);
          auto dictEntries = freq_dictionary.find(uniqueWord);
-         // Слова нет в словаре, присваиваем статистику по нему
-         if (dictEntries == freq_dictionary.end())
-             freq_dictionary[uniqueWord] = wordEntries;
-         // Слово есть в словаре, добавляем статистику по нему
-         else {
-             for (auto & wordEntry : wordEntries) {
-                 Entry* entryPtr = nullptr;
-                 for (auto & dictEntry : dictEntries->second) {
-                     if (dictEntry.doc_id == wordEntry.doc_id) {
-                         entryPtr = &dictEntry;
-                         break;
-                     }
-                 }
-                 if (entryPtr)
-                     entryPtr->count += wordEntry.count;
-                 else
-                     dictEntries->second.push_back(wordEntry);
-             }
+         if (dictEntries == freq_dictionary.end()) {
+             freq_dictionary[uniqueWord] = GetWordCount(uniqueWord);
          }
     }
 
